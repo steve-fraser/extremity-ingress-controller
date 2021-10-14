@@ -1,7 +1,7 @@
 apiVersion: crd.projectcalico.org/v1
 kind: BGPConfiguration
 metadata:
- name: extremity-bgp-configuration
+ name: default
 spec:
  logSeverityScreen: Info
  nodeToNodeMeshEnabled: true
@@ -13,5 +13,5 @@ kind: BGPPeer
 metadata:
  name: <replace>
 spec:
- peerIP: <replace>
+ peerIP:  <replace>
  asNumber: 65000

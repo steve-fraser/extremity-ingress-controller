@@ -3,39 +3,40 @@ package pkg
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os/exec"
 	"strings"
 )
 
-func ConfigureCalico() error {
+func ConfigureCalico(kubeconfig string) error {
 
 	fmt.Printf("Configuring Calcio\n")
 
-	//localip, err := GetInterfaceIpv4Addr("eth0")
-	// if err != nil {
-	// 	return fmt.Errorf("Error querying IP: ip %s, error: %v", localip, err)
-	// }
+	localip, err := GetInterfaceIpv4Addr("eth0")
+	if err != nil {
+		return fmt.Errorf("Error querying IP: ip %s, error: %v", localip, err)
+	}
 
 	read, err := ioutil.ReadFile("/tmp/manifests/calico-bgp.yaml")
 	if err != nil {
 		panic(err)
 	}
 
-	newContents := strings.Replace(string(read), "<replace>", "test", -1)
+	newContents := strings.Replace(string(read), "<replace>", localip, -1)
 
 	fmt.Println(newContents)
-
+	fmt.Printf("applying calico bgp configuration\n")
 	err = ioutil.WriteFile("/tmp/manifests/calico-bgp.yaml", []byte(newContents), 0)
 	if err != nil {
 		panic(err)
 	}
-	cmd := exec.Command("/bin/sh", "-c", "kubectl apply -f /tmp/manifests/calico-bgp.yaml")
+	kubectl_command := "kubectl apply -f /tmp/manifests/calico-bgp.yaml --kubeconfig " + kubeconfig
+	cmd := exec.Command("/bin/sh", "-c", kubectl_command)
 
 	err = cmd.Run()
 
 	if err != nil {
-		log.Fatal(err)
+		fmt.Printf("ERROR: Couldn't add BGP Config\n")
+		panic(err)
 	}
 
 	// Build a clientset based on the provided kubeconfig file.

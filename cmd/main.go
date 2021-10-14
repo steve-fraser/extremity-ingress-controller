@@ -29,7 +29,7 @@ func main() {
 		// handle error
 		fmt.Printf("error %s, creating clientset\n", err.Error())
 	}
-	pkg.ConfigureCalico()
+	pkg.ConfigureCalico("/root/.kube/config")
 	ch := make(chan struct{})
 	factory := informers.NewSharedInformerFactory(clientset, 0)
 	informer := factory.Core().V1().Nodes()
